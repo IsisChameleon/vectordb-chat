@@ -209,6 +209,9 @@ def main_processing():
         st.session_state["intro_text"] = intro_text
 
 
+    if st.session_state["selected_url"] != "":
+        st.markdown(f'#### [Selected URL]({st.session_state["selected_url"]})')
+
     if st_exists("intro_text"):
         st.markdown(f'<div style="border:1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">{st.session_state["intro_text"]}</div>', unsafe_allow_html=True)
     
