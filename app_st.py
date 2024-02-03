@@ -112,6 +112,7 @@ def api_key_present():
 
 
 def main_processing():
+    sidebar.url_selector()
     if not api_key_present():
         return
 # Show sidebard
