@@ -16,7 +16,7 @@ from griptape.engines import VectorQueryEngine
 from griptape.loaders import WebLoader
 from griptape.rules import Ruleset, Rule
 from griptape.structures import Agent
-from griptape.tools import VectorStoreClient
+from griptape.tools import VectorStoreClient, BaseTool
 from griptape.utils import Chat
 from griptape.drivers import LocalVectorStoreDriver, OpenAiEmbeddingDriver
 
@@ -81,15 +81,20 @@ def load_api_key():
 
     return os.getenv("OPENAI_API_KEY")
 
-def generate_response(user_query: str):
+def generate_response(agent:Agent, user_query: str):
     """
     Generate AI response using the ChatOpenAI model.
     """
-    # Build the list of messages
-    # zipped_messages = build_message_list()
+    # Build the list of messages to provide context
+
+    # add to prompt
+
+    response = agent.run(user_query)
 
     # Generate response using the chat model
-    ai_response = "blobl"
+    ai_response = response.output_task.output.to_text()
+    print('____________________AI_RESPONSE__________________')
+    print(ai_response)
 
     return ai_response
 
@@ -146,7 +151,24 @@ def configure_vector_tool(namespace: str, url: str, url_description: str):
 
     return vector_store_tool
 
-def submit_first_description_query(url_description: str):
+def configure_agent(tools: list[BaseTool]):
+    agent = Agent(
+        rulesets=[
+            Ruleset(
+                name="Vector Database Expert",
+                rules=[
+                    Rule(
+                        "Be truthful. Be specific. Only use information extracted from your tools. Provide citation or url for your statements."
+                    )
+                ]
+            )
+        ],
+        tools=tools
+        )
+    return agent
+
+
+def submit_first_description_query(agent:Agent, url_description: str):
 
     first_query = """
         For {url_description}, provide a paragraph of text that highlights the characteristics of this vector database. 
@@ -155,11 +177,13 @@ def submit_first_description_query(url_description: str):
     user_query = first_query.format(url_description=url_description)
 
             # Generate response
-    output = generate_response(user_query)
+    output = generate_response(agent, user_query)
 
     # Append AI response to generated responses
     return output
 
+def st_exists(name: str):
+    return name in st.session_state and name != ""
 
 def main_processing():
     if not api_key_present():
@@ -173,12 +197,20 @@ def main_processing():
     
     # Configure vector engine
     namespace = st.session_state["selected_description"]
-    if st.session_state["url_changed"] or "vector_tool" not in st.session_state:
+    if st.session_state["url_changed"]:
         url = st.session_state["selected_url"]
         url_description = st.session_state["selected_description"]
         st.session_state.vector_tool = configure_vector_tool(namespace, url, url_description)
 
-        intro_text = submit_first_description_query(url_description)
+        st.session_state.agent = configure_agent([st.session_state.vector_tool])
+
+        intro_text = submit_first_description_query(st.session_state.agent, url_description)
+        print(intro_text)
+        st.session_state["intro_text"] = intro_text
+
+
+    if st_exists("intro_text"):
+        st.markdown(f'<div style="border:1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">{st.session_state["intro_text"]}</div>', unsafe_allow_html=True)
     
     # Show sidebard
 
@@ -194,7 +226,7 @@ def main_processing():
         st.session_state.past.append(user_query)
 
         # Generate response
-        output = generate_response(user_query)
+        output = generate_response(st.session_state["agent"], user_query)
 
         # Append AI response to generated responses
         st.session_state.generated.append(output)
