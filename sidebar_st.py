@@ -72,13 +72,21 @@ class Sidebar:
             st.markdown("""
             Be in touch to make it more helpful!
             """)    @staticmethod
+    @staticmethod
     def url_selector():
         url_list = [
-            {"url": "https://example1.com", "description": "Example 1"},
-            {"url": "https://example2.com", "description": "Example 2"},
+            {"url": "https://www.deeplake.ai/", "description": "DeepLake"},
+            {"url": "https://epsilla.com/", "description": "Example 2"},
             # Add more URLs as needed
         ]
         url_descriptions = [item["description"] for item in url_list]
-        selected_description = st.selectbox("Select a URL", url_descriptions)
+        selected_description = st.selectbox("Select a Vector Database to chat about...", url_descriptions)
         selected_url = next(item for item in url_list if item["description"] == selected_description)["url"]
+        
+        # Check if the selected URL has changed or if it's the first time a URL is being selected
+        if "selected_url" not in st.session_state or st.session_state["selected_url"] != selected_url:
+            st.session_state["url_changed"] = True
+        else:
+            st.session_state["url_changed"] = False
+
         st.session_state["selected_url"] = selected_url
