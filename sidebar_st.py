@@ -75,6 +75,7 @@ class Sidebar:
     @staticmethod
     def url_selector():
         url_list = [
+            {"url": "", "description": "Select a URL..."},
             {"url": "https://www.deeplake.ai/", "description": "DeepLake"},
             {"url": "https://epsilla.com/", "description": "Example 2"},
             # Add more URLs as needed

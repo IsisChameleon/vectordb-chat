@@ -112,8 +112,11 @@ def api_key_present():
 
 
 def main_processing():
-    sidebar.url_selector()
     if not api_key_present():
+        return
+    sidebar.url_selector()
+    if st.session_state["selected_url"] == "":
+        st.write("Please select a URL to chat about...")
         return
 # Show sidebard
 
