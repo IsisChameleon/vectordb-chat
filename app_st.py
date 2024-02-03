@@ -81,23 +81,6 @@ def load_api_key():
 
     return os.getenv("OPENAI_API_KEY")
 
-def generate_response(agent:Agent, user_query: str):
-    """
-    Generate AI response using the ChatOpenAI model.
-    """
-    # Build the list of messages to provide context
-
-    # add to prompt
-
-    response = agent.run(user_query)
-
-    # Generate response using the chat model
-    ai_response = response.output_task.output.to_text()
-    print('____________________AI_RESPONSE__________________')
-    print(ai_response)
-
-    return ai_response
-
 def show_api_key_missing():
         """
         Displays a message if the user has not entered an API key
@@ -158,7 +141,10 @@ def configure_agent(tools: list[BaseTool]):
                 name="Vector Database Expert",
                 rules=[
                     Rule(
-                        "Be truthful. Be specific. Only use information extracted from your tools. Provide citation or url for your statements."
+                        "Be truthful. Be specific. Only use information extracted from your tools."
+                    ),
+                    Rule(
+                        "At the end of your final response provide the list of sources."
                     )
                 ]
             )
@@ -167,12 +153,28 @@ def configure_agent(tools: list[BaseTool]):
         )
     return agent
 
+def generate_response(agent:Agent, user_query: str):
+    """
+    Generate AI response using the ChatOpenAI model.
+    """
+    # Build the list of messages to provide context
+
+    # add to prompt
+
+    response = agent.run(user_query)
+
+    # Generate response using the chat model
+    ai_response = response.output_task.output.to_text()
+    print('____________________AI_RESPONSE__________________')
+    print(ai_response)
+
+    return ai_response
 
 def submit_first_description_query(agent:Agent, url_description: str):
 
     first_query = """
         For {url_description}, provide a paragraph of text that highlights the characteristics of this vector database. 
-        Look in the main page of the website for a tagline and provide a summary of the features."""
+        Provide a summary of the features and use cases."""
     
     user_query = first_query.format(url_description=url_description)
 
@@ -192,7 +194,7 @@ def main_processing():
     # Select Vector Database to chat about
     sidebar.url_selector()
     if st.session_state["selected_url"] == "":
-        st.write("Please select a URL to chat about...")
+        st.write("Please select a database to chat about...")
         return
     
     # Configure vector engine
