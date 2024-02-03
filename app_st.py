@@ -12,6 +12,14 @@ from streamlit_chat import message
 from griptape.structures import Agent
 from griptape.tools import WebScraper
 from griptape.utils import Chat
+from griptape.engines import VectorQueryEngine
+from griptape.loaders import WebLoader
+from griptape.rules import Ruleset, Rule
+from griptape.structures import Agent
+from griptape.tools import VectorStoreClient
+from griptape.utils import Chat
+from griptape.drivers import LocalVectorStoreDriver, OpenAiEmbeddingDriver
+
 from sidebar_st import Sidebar
 
 
@@ -68,9 +76,12 @@ def load_api_key():
         return user_api_key
 
     load_dotenv(override=True)
+    if os.getenv("OPENAI_API_KEY") != "":
+        st.sidebar.success("API key loaded from .env", icon="🚀")
+
     return os.getenv("OPENAI_API_KEY")
 
-def generate_response():
+def generate_response(user_query: str):
     """
     Generate AI response using the ChatOpenAI model.
     """
@@ -110,15 +121,66 @@ def api_key_present():
         os.environ["OPENAI_API_KEY"] = user_api_key
         return True
 
+def configure_vector_tool(namespace: str, url: str, url_description: str):
+
+    engine = VectorQueryEngine(
+        vector_store_driver=LocalVectorStoreDriver(
+            embedding_driver=OpenAiEmbeddingDriver(
+                api_key=os.getenv("OPENAI_API_KEY")
+            )
+        )
+    )
+
+    artifacts = WebLoader().load(url=url)
+
+    engine.vector_store_driver.upsert_text_artifacts(
+        {namespace: artifacts}
+    )
+
+    vector_store_tool = VectorStoreClient(
+        description=f"Contains information about {url_description}",
+        query_engine=engine,
+        namespace=namespace,
+        off_prompt=False
+    )
+
+    return vector_store_tool
+
+def submit_first_description_query(url_description: str):
+
+    first_query = """
+        For {url_description}, provide a paragraph of text that highlights the characteristics of this vector database. 
+        Look in the main page of the website for a tagline and provide a summary of the features."""
+    
+    user_query = first_query.format(url_description=url_description)
+
+            # Generate response
+    output = generate_response(user_query)
+
+    # Append AI response to generated responses
+    return output
+
 
 def main_processing():
     if not api_key_present():
         return
+    
+    # Select Vector Database to chat about
     sidebar.url_selector()
     if st.session_state["selected_url"] == "":
         st.write("Please select a URL to chat about...")
         return
-# Show sidebard
+    
+    # Configure vector engine
+    namespace = st.session_state["selected_description"]
+    if st.session_state["url_changed"] or "vector_tool" not in st.session_state:
+        url = st.session_state["selected_url"]
+        url_description = st.session_state["selected_description"]
+        st.session_state.vector_tool = configure_vector_tool(namespace, url, url_description)
+
+        intro_text = submit_first_description_query(url_description)
+    
+    # Show sidebard
 
     # Create a text input for user
     st.text_input('YOU: ', key='prompt_input', on_change=submit)
@@ -132,7 +194,7 @@ def main_processing():
         st.session_state.past.append(user_query)
 
         # Generate response
-        output = generate_response()
+        output = generate_response(user_query)
 
         # Append AI response to generated responses
         st.session_state.generated.append(output)
