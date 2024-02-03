@@ -71,4 +71,14 @@ class Sidebar:
             st.markdown("### 🌟 Contributing")
             st.markdown("""
             Be in touch to make it more helpful!
-            """)
+            """)    @staticmethod
+    def url_selector():
+        url_list = [
+            {"url": "https://example1.com", "description": "Example 1"},
+            {"url": "https://example2.com", "description": "Example 2"},
+            # Add more URLs as needed
+        ]
+        url_descriptions = [item["description"] for item in url_list]
+        selected_description = st.selectbox("Select a URL", url_descriptions)
+        selected_url = next(item for item in url_list if item["description"] == selected_description)["url"]
+        st.session_state["selected_url"] = selected_url
