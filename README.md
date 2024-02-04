@@ -1,10 +1,7 @@
-# ChatBot Starter with Streamlit, OpenAI, and LangChain
+# Chat about Vector DB with Streamlit, OpenAI, and GripTape
 
-This repository contains a simple yet powerful chatbot built with Streamlit, OpenAI, and LangChain. The chatbot maintains conversational memory, meaning it can reference past exchanges in its responses.
+This repository contains a simple chatbot built with Streamlit, OpenAI, and GripTape agent that can answer questions about a selection of vector databases
 
-## Overview
-
-The chatbot is a demonstration of integrating OpenAI's GPT model, the LangChain library, and Streamlit for creating interactive web applications. The bot's conversational memory allows it to maintain context during the chat session, leading to a more coherent and engaging user experience. Importantly, this feature-rich chatbot application is implemented in less than 40 lines of code (excluding whitespace and comments)!
 
 ### Key Features
 
@@ -14,7 +11,7 @@ The chatbot is a demonstration of integrating OpenAI's GPT model, the LangChain 
 
 ## Demo App
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://chatbot-starter.streamlit.app/)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://vectordb-chat.streamlit.app/)
 
 ## How to Run
 
@@ -22,7 +19,7 @@ The chatbot is a demonstration of integrating OpenAI's GPT model, the LangChain 
 
 - Python 3.6 or higher
 - Streamlit
-- LangChain
+- griptape
 - OpenAI API key
 
 ### Steps
@@ -30,15 +27,19 @@ The chatbot is a demonstration of integrating OpenAI's GPT model, the LangChain 
 1. Clone this repository.
 2. Install the necessary Python packages using the command `pip install -r requirements.txt`.
 3. Set the environment variable for your OpenAI API key.
-4. Run the Streamlit app using the command `streamlit run streamlit_app.py`.
+4. Run the Streamlit app using the command `streamlit run app_st.py`.
 
-## Usage
+## TO DO
 
-The chatbot starts with a system message that sets the tone for the conversation. It then alternates between receiving user inputs and generating AI responses. The conversation history is stored and used as context for generating future responses, allowing the chatbot to maintain conversational continuity.
+1. User message disappears while waiting for answers from agent. Should be displayed earlier.
+2. Add streaming
+3. Log user queries and answers to create a knowledge base (with some LLM monitoring tool)
+4. Improve context and speed, maybe save some data in an index (not just real time search etc... agent is slow)
+
 
 ## Contribution
 
-Contributions, issues, and feature requests are welcome. Feel free to check the [Issues](https://github.com/AustonianAI/chatbot-starter/issues) page if you want to contribute.
+Contributions, issues, and feature requests are welcome. Feel free to check the [Issues](https://github.com/IsisChameleon/vectordb-chat/issues) page if you want to contribute.
 
 ## License
 

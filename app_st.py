@@ -44,27 +44,7 @@ if 'past' not in st.session_state:
 if 'entered_prompt' not in st.session_state:
     st.session_state['entered_prompt'] = ""  # Store the latest user input
 
-# Initialize agent
 
-
-# def build_message_list():
-#     """
-#     Build a list of messages including system, human and AI messages.
-#     """
-#     # Start zipped_messages with the SystemMessage
-#     zipped_messages = [SystemMessage(
-#         content="You are a helpful AI assistant talking with a human. If you do not know an answer, just say 'I don't know', do not make up an answer.")]
-
-#     # Zip together the past and generated messages
-#     for human_msg, ai_msg in zip_longest(st.session_state['past'], st.session_state['generated']):
-#         if human_msg is not None:
-#             zipped_messages.append(HumanMessage(
-#                 content=human_msg))  # Add user messages
-#         if ai_msg is not None:
-#             zipped_messages.append(
-#                 AIMessage(content=ai_msg))  # Add AI messages
-
-#     return zipped_messages
 def load_api_key():
     """
     Loads the OpenAI API key
@@ -185,8 +165,6 @@ def generate_response(agent:Agent, user_query: str, selected_description: str, s
 
     # Generate response using the chat model
     ai_response = response.output_task.output.to_text()
-    print('____________________AI_RESPONSE__________________')
-    print(response.output_task)
 
     return ai_response
 
@@ -271,4 +249,4 @@ main_processing()
 # Add credit
 st.markdown("""
 ---
-lala isabelle""")
+© Isabelle for The Builders Club, Reach out for contributions!""")

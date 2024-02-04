@@ -63,9 +63,9 @@ class Sidebar:
         
         with st.sidebar.expander("📧 Contact"):
 
-            st.write("**GitHub:** [IsisChameleon](https://github.com/IsisChameleon/niddy-bot)")
-            st.write("**Hashnode** [Isabelle](https://isabelle.hashnode.dev)")
-            st.write("**Mail** : isisdesade@gmail.com")
+            st.write("**GitHub:** [Vector Db Chat](https://github.com/IsisChameleon/vectordb-chat)")
+            st.write("**Made for ** [The Builders Club](https://www.thebuilderclub.org/)")
+            st.write("**Contributions or suggestions welcome! ** : isisdesade@gmail.com")
 
     @staticmethod
     def url_selector():
