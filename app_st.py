@@ -200,7 +200,7 @@ def main_processing():
     if st.session_state["url_changed"]:
         url = st.session_state["selected_url"]
         url_description = st.session_state["selected_description"]
-        st.session_state.vector_tool = configure_vector_tool(namespace, url, url_description)
+        #st.session_state.vector_tool = configure_vector_tool(namespace, url, url_description)
 
         st.session_state.agent = configure_agent()
 
