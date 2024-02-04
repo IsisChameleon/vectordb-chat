@@ -234,14 +234,14 @@ def main_processing():
         # Append AI response to generated responses
         st.session_state.generated.append(output)
 
-    # Display the chat history
+    # Display the chat history (avatar: https://www.dicebear.com/styles/)
     if st.session_state['generated']:
         for i in range(len(st.session_state['generated'])-1, -1, -1):
             # Display AI response
-            message(st.session_state["generated"][i], key=str(i))
+            message(st.session_state["generated"][i], key=str(i), avatar_style="bottts-neutral")
             # Display user message
             message(st.session_state['past'][i],
-                    is_user=True, key=str(i) + '_user')
+                    is_user=True, key=str(i) + '_user', avatar_style='pixel-art-neutral')
             
 sidebar.show_contact()
 main_processing()
