@@ -10,7 +10,7 @@ from streamlit_chat import message
 # Use the Chat utility to chat with it.
 
 from griptape.structures import Agent
-from griptape.tools import WebScraper
+from griptape.tools import WebScraper, TaskMemoryClient
 from griptape.utils import Chat
 from griptape.engines import VectorQueryEngine
 from griptape.loaders import WebLoader
@@ -19,6 +19,7 @@ from griptape.structures import Agent
 from griptape.tools import VectorStoreClient, BaseTool
 from griptape.utils import Chat
 from griptape.drivers import LocalVectorStoreDriver, OpenAiEmbeddingDriver
+from griptape.drivers import OpenAiChatPromptDriver
 
 from sidebar_st import Sidebar
 
@@ -134,52 +135,71 @@ def configure_vector_tool(namespace: str, url: str, url_description: str):
 
     return vector_store_tool
 
-def configure_agent(tools: list[BaseTool]):
+
+def configure_agent():
+    tools = [WebScraper(), TaskMemoryClient(off_prompt=False)]
+
+    # if st_exists("vector_tool"):
+    #     tools.append(st.session_state.vector_tool)
+
     agent = Agent(
-        rulesets=[
-            Ruleset(
-                name="Vector Database Expert",
-                rules=[
-                    Rule(
-                        "Be truthful. Be specific. Only use information extracted from your tools."
-                    ),
-                    Rule(
-                        "At the end of your final response provide the list of sources."
-                    )
-                ]
-            )
-        ],
+
+        # TO CHANGE THE MODEL
+        # prompt_driver=OpenAiChatPromptDriver(
+        #     model="gpt-3.5-turbo"
+        # ),
+        # rulesets=[
+        #     Ruleset(
+        #         name="Vector Database Expert",
+        #         rules=[
+        #             Rule(
+        #                 "Be truthful. Be specific."
+        #             )
+        #         ]
+        #     )
+        # ],
         tools=tools
         )
     return agent
 
-def generate_response(agent:Agent, user_query: str):
+def generate_response(agent:Agent, user_query: str, selected_description: str, selected_url: str):
     """
     Generate AI response using the ChatOpenAI model.
     """
     # Build the list of messages to provide context
+    prompt = """Please try your best to answer with precision the following user query. If the question is ambiguous, take an opinionated option and
+    always describe your assumptions. Your audience are expert software engineer, so don't answer platitudes such as 'The database is performant for most relevant use cases' which 
+    doesn't provide any practical information to the engineer. The engineer needs you to understand whether the selected database can meet their needs.add
+    
+    The following question related to the selected database {selected_description}, with main website located at {selected_url}.
+    
+    When using a web search tool, look first in the main website but if no sufficient information is available, use a seach engine to find alternate websites to scrape.
+    
+    Here's the user query: {user_query}"""
+
+    formatted_prompt = prompt.format(selected_description=selected_description, selected_url=selected_url, user_query=user_query)
 
     # add to prompt
 
-    response = agent.run(user_query)
+    response = agent.run(formatted_prompt)
 
     # Generate response using the chat model
     ai_response = response.output_task.output.to_text()
     print('____________________AI_RESPONSE__________________')
-    print(ai_response)
+    print(response.output_task)
 
     return ai_response
 
-def submit_first_description_query(agent:Agent, url_description: str):
+def submit_first_description_query(agent:Agent, url:str, url_description: str):
 
     first_query = """
-        For {url_description}, provide a paragraph of text that highlights the characteristics of this vector database. 
+        For {url_description} {url}, provide a 250 words paragraph of text that highlights the characteristics of this vector database. 
         Provide a summary of the features and use cases."""
     
-    user_query = first_query.format(url_description=url_description)
+    user_query = first_query.format(url_description=url_description, url=url)
 
             # Generate response
-    output = generate_response(agent, user_query)
+    output = generate_response(agent, user_query, selected_description=url_description, selected_url=url)
 
     # Append AI response to generated responses
     return output
@@ -204,15 +224,15 @@ def main_processing():
         url_description = st.session_state["selected_description"]
         st.session_state.vector_tool = configure_vector_tool(namespace, url, url_description)
 
-        st.session_state.agent = configure_agent([st.session_state.vector_tool])
+        st.session_state.agent = configure_agent()
 
-        intro_text = submit_first_description_query(st.session_state.agent, url_description)
+        intro_text = submit_first_description_query(st.session_state.agent, url, url_description)
         print(intro_text)
         st.session_state["intro_text"] = intro_text
 
 
-    if st.session_state["selected_url"] != "":
-        st.markdown(f'#### [{st.session_state["selected_url"]}]({st.session_state["selected_url"]})')
+    if st_exists("selected_url"):
+         st.markdown(f'#### [{st.session_state["selected_url"]}]({st.session_state["selected_url"]})')
 
     if st_exists("intro_text"):
         st.markdown(f'<div style="border:1px solid #ddd; border-radius: 5px; padding: 10px; margin: 10px 0;">{st.session_state["intro_text"]}</div>', unsafe_allow_html=True)
@@ -231,7 +251,7 @@ def main_processing():
         st.session_state.past.append(user_query)
 
         # Generate response
-        output = generate_response(st.session_state["agent"], user_query)
+        output = generate_response(st.session_state["agent"], user_query, selected_description=st.session_state["selected_description"], selected_url=st.session_state["selected_url"])
 
         # Append AI response to generated responses
         st.session_state.generated.append(output)
@@ -244,7 +264,8 @@ def main_processing():
             # Display user message
             message(st.session_state['past'][i],
                     is_user=True, key=str(i) + '_user')
-
+            
+sidebar.show_contact()
 main_processing()
 
 # Add credit

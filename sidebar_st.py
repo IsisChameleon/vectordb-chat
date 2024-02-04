@@ -66,23 +66,53 @@ class Sidebar:
             st.write("**GitHub:** [IsisChameleon](https://github.com/IsisChameleon/niddy-bot)")
             st.write("**Hashnode** [Isabelle](https://isabelle.hashnode.dev)")
             st.write("**Mail** : isisdesade@gmail.com")
-            
-            #Contributing
-            st.markdown("### 🌟 Contributing")
-            st.markdown("""
-            Be in touch to make it more helpful!
-            """)    @staticmethod
+
     @staticmethod
     def url_selector():
         url_list = [
             {"url": "", "description": "Select a URL..."},
             {"url": "https://www.deeplake.ai/", "description": "DeepLake"},
-            {"url": "https://epsilla.com/", "description": "Example 2"},
+            {"url": "https://www.datastax.com/products/datastax-astra", "description": "DataStax Astra DB"},
+            {'url': 'https://learn.microsoft.com/en-us/azure/cosmos-db/mongodb/vcore/', 'description': 'Azure CosmosDB MongoDB vCore'},
+            {'url': 'https://bageldb.com/', 'description': 'BagelDB'},
+            {'url': 'https://cassandra.apache.org/doc/latest/cassandra/getting-started/vector-search-quickstart.html', 'description': 'Cassandra'},
+            {'url': 'https://docs.trychroma.com/', 'description': 'ChromaDB'},
+            {'url': 'https://learn.microsoft.com/en-us/azure/search/search-what-is-azure-search', 'description': 'Azure AI Search'},
+            {'url': 'https://cn.aliyun.com/product/ai/dashvector?from_alibabacloud=&spm=a2c4g.2510225.0.0.11f0250eWf0kAy', 'description': 'Dashvector'},
+            {'url': 'https://www.deeplake.ai/', 'description': 'Deeplake'},
+            {'url': 'https://www.elastic.co/elasticsearch/vector-database', 'description': 'Elasticsearch'},
+            {'url': 'https://epsilla.com/', 'description': 'Epsilla'},
+            {'url': 'https://faiss.ai/', 'description': 'FAISS'},
+            {'url': 'https://github.com/jbellis/jvector', 'description': 'JVector'},
+            {'url': 'https://www.jaguardb.com/', 'description': 'Jaguar'},
+            {'url': 'https://lancedb.com/', 'description': 'LanceDB'},
+            {'url': 'https://lantern.dev/', 'description': 'Lantern.Dev'},
+            {'url': 'https://www.marqo.ai/', 'description': 'marqo ai'},
+            {'url': 'https://milvus.io/', 'description': 'milvus'},
+            {'url': 'https://www.mongodb.com/products/platform/atlas-vector-search', 'description': 'mongodb'},
+            {'url': 'https://neo4j.com/labs/genai-ecosystem/vector-search/', 'description': 'neo4jvector'},
+            {'url': 'https://opensearch.org/platform/search/vector-database.html', 'description': 'opensearch'},
+            {'url': 'https://pgxn.org/dist/vector/', 'description': 'pgvectors'},
+            {'url': 'https://www.pinecone.io/', 'description': 'pinecone'},
+            {'url': 'https://qdrant.tech/', 'description': 'Qdrant'},
+            {'url': 'https://redis.com/solutions/use-cases/vector-database/', 'description': 'redis'},
+            {'url': 'https://rockset.com/', 'description': 'Rockset'},
+            {'url': 'https://www.singlestore.com/', 'description': 'https://www.singlestore.com/'},
+            {'url': 'https://supabase.com/', 'description': 'supabase'},
+            {'url': 'https://www.alibabacloud.com/help/en/tair/product-overview/what-is-tair', 'description': 'tair'},
+            {'url': 'https://cloud.tencent.com/document/product/1709', 'description': 'TencentVectorDB'},
+            {'url': 'https://www.timescale.com/ai', 'description': 'timescalevector'},
+            {'url': 'https://vespa.ai/', 'description': 'Vespa'},
+            {'url': 'https://weaviate.io/', 'description': 'weaviate'},
+            {'url': 'https://www.getzep.com/', 'description': 'zep'}
             # Add more URLs as needed
         ]
         url_descriptions = [item["description"] for item in url_list]
-        selected_description = st.selectbox("Select a Vector Database to chat about...", url_descriptions)
-        selected_url = next(item for item in url_list if item["description"] == selected_description)["url"]
+        selection = st.selectbox("Select a Vector Database to chat about...", url_descriptions)
+        selected_item = next(item for item in url_list if item["description"] == selection)
+        selected_description = selected_item["description"]
+        selected_url = selected_item["url"]
+
         
         # Check if the selected URL has changed or if it's the first time a URL is being selected
         if "selected_url" not in st.session_state or st.session_state["selected_url"] != selected_url:
@@ -91,3 +121,4 @@ class Sidebar:
             st.session_state["url_changed"] = False
 
         st.session_state["selected_url"] = selected_url
+        st.session_state["selected_description"] = selected_description
